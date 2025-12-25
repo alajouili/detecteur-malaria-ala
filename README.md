@@ -9,8 +9,8 @@ Ce projet est une application d'intelligence artificielle capable de détecter s
 L'IA a été développée en utilisant le dataset de référence du **NIH (National Institutes of Health)** :
 * **Volume** : ~27 500 images classées (Parasitized / Uninfected).
 * **Provenance** : Images couleur de ~100–150 px issues de frottis sanguins réels.
-* **Source** : [Kaggle - Malaria Cell Images Dataset](https://www.kaggle.com/datasets/iarunava/cell-images-for-detecting-malaria).
 * **Taille** : ~275 MB zippé (environ 1 GB extrait).
+* **Source** : [Kaggle - Malaria Cell Images Dataset](https://www.kaggle.com/datasets/iarunava/cell-images-for-detecting-malaria).
 
 ## 📈 Évaluation et Performances
 Le modèle a été validé pour vérifier sa fiabilité médicale.
