@@ -1,13 +1,11 @@
 import gradio as gr
 import torch
 import torch.nn as nn
-import torchvision.transforms as transforms
+from torchvision import transforms
 from PIL import Image
 import os
 
-# ---------------------------------------------------------
-# 1. DÉFINITION DU MODÈLE (Structure à 1 sortie, imposée par le fichier)
-# ---------------------------------------------------------
+# --- 1. DÉFINITION DU MODÈLE ---
 class MalariaModel(nn.Module):
     def __init__(self):
         super().__init__()
@@ -15,95 +13,106 @@ class MalariaModel(nn.Module):
             nn.Conv2d(3, 32, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
-            
             nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
-
             nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
-
             nn.Flatten(),
             nn.Linear(8192, 512), 
             nn.ReLU(),
-            nn.Linear(512, 1) # Une seule sortie
+            nn.Linear(512, 1)
         )
 
     def forward(self, xb):
         return self.network(xb)
 
-# ---------------------------------------------------------
-# 2. CHARGEMENT
-# ---------------------------------------------------------
+# --- 2. CHARGEMENT SÉCURISÉ ---
 model = MalariaModel()
-filename = "malaria_model_final.pth" 
+filename = "malaria_model_final.pth"
 
-try:
-    if os.path.exists(filename):
-        state_dict = torch.load(filename, map_location=torch.device('cpu'))
-        model.load_state_dict(state_dict)
+if os.path.exists(filename):
+    try:
+        model.load_state_dict(torch.load(filename, map_location=torch.device('cpu')))
         model.eval()
-        print("✅ Modèle chargé avec succès.")
-    else:
-        print("⚠️ Fichier introuvable.")
-except Exception as e:
-    print(f"❌ Erreur : {e}")
+        print("✅ Modèle chargé avec succès !")
+    except Exception as e:
+        print(f"⚠️ Erreur lors du chargement : {e}")
+else:
+    print("⚠️ ATTENTION : Le fichier .pth est introuvable.")
 
-# ---------------------------------------------------------
-# 3. PRÉDICTION AVEC DEBUG
-# ---------------------------------------------------------
-def predict_image(img):
-    if img is None:
+# --- 3. LOGIQUE DE PRÉDICTION ---
+transform = transforms.Compose([
+    transforms.Resize((64, 64)), 
+    transforms.ToTensor()
+])
+
+def predict(image):
+    if image is None:
         return None
     
-    try:
-        # Transformation EXACTE de votre Colab (Resize 64x64 + ToTensor)
-        # Pas de normalisation car absente de votre snippet Colab
-        transform = transforms.Compose([
-            transforms.Resize((64, 64)), 
-            transforms.ToTensor()
-        ])
+    img_t = transform(image).unsqueeze(0)
+    
+    with torch.no_grad():
+        output = model(img_t)
+        prob_sain = torch.sigmoid(output).item()
+        prob_infecte = 1 - prob_sain 
         
-        img_t = transform(img).unsqueeze(0)
-        
-        with torch.no_grad():
-            prediction = model(img_t)
-            # On utilise Sigmoid car c'est un modèle à 1 sortie
-            score_brut = torch.sigmoid(prediction).item()
-            
-        # INTERPRÉTATION
-        # Si score proche de 0 => Classe 0 (Souvent Infecté/Parasitized)
-        # Si score proche de 1 => Classe 1 (Souvent Sain/Uninfected)
-        
-        # On affiche le score brut pour comprendre ce qui se passe
-        message_debug = f"Score brut du modèle : {score_brut:.5f}\n"
-        if score_brut < 0.01 or score_brut > 0.99:
-            message_debug += "⚠️ ATTENTION : Le modèle est extrêmement sûr de lui (saturé).\n"
-            message_debug += "S'il ne change pas d'avis avec une autre image, le fichier .pth est mauvais."
+    return {"Sain (Uninfected) 🟢": prob_sain, "Infecté (Parasitized) 🦠": prob_infecte}
 
-        return {
-            "Infecté (Parasitized)": 1 - score_brut,
-            "Sain (Uninfected)": score_brut
-        }, message_debug
-            
-    except Exception as e:
-        return {f"Erreur": 0.0}, str(e)
+# --- 4. INTERFACE GRAPHIQUE ÉPURÉE ---
 
-# ---------------------------------------------------------
-# 4. INTERFACE
-# ---------------------------------------------------------
-# J'ajoute une boite de texte pour voir les détails techniques
-interface = gr.Interface(
-    fn=predict_image,
-    inputs=gr.Image(type="pil"),
-    outputs=[
-        gr.Label(num_top_classes=2, label="Résultat"), 
-        gr.Textbox(label="Message Technique (Debug)")
-    ],
-    title="Détecteur Malaria - Test Final",
-    description="Si le 'Score brut' ne change pas entre deux images différentes, le modèle est à refaire."
+custom_css = """
+.container {max-width: 900px; margin: auto; padding-top: 20px;}
+h1 {text-align: center; color: #2563eb; margin-bottom: 0;}
+h3 {text-align: center; color: #666; margin-top: 5px; font-style: italic;}
+.gr-button {background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%); border: none; color: white;}
+"""
+
+theme = gr.themes.Soft(
+    primary_hue="teal",
+    secondary_hue="blue",
+).set(
+    button_primary_background_fill="*primary_500",
+    button_primary_background_fill_hover="*primary_600",
 )
 
+with gr.Blocks(theme=theme, css=custom_css, title="Malaria AI - Ala") as demo:
+    
+    # --- EN-TÊTE SIMPLE ---
+    # Ton nom est ici, propre et visible
+    gr.Markdown("""
+    # 🔬 Malaria AI Detection
+    ### Developed by Ala
+    """)
+    
+    gr.HTML("<br>") # Un peu d'espace
+
+    # --- ZONE PRINCIPALE ---
+    with gr.Row():
+        # Colonne de Gauche : Entrée
+        with gr.Column(scale=1):
+            input_image = gr.Image(
+                type="pil", 
+                label="Image Microscope", 
+                height=300
+            )
+            analyze_btn = gr.Button("🔍 Analyser", variant="primary", size="lg")
+
+        # Colonne de Droite : Résultat
+        with gr.Column(scale=1):
+            output_label = gr.Label(
+                num_top_classes=2, 
+                label="Résultat"
+            )
+
+    # --- INTERACTIONS ---
+    analyze_btn.click(
+        fn=predict, 
+        inputs=input_image, 
+        outputs=output_label
+    )
+
 if __name__ == "__main__":
-    interface.launch()
+    demo.launch()
