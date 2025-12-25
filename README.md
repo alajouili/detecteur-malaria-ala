@@ -1,26 +1,42 @@
-# detecteur-malaria-ala
-"Interface IA de détection de malaria par Ala"
+# 🦟 Détecteur de Malaria par IA - Projet Ala
 
-Ce projet est une application d'intelligence artificielle capable de détecter si une cellule sanguine est infectée par le parasite de la malaria ou si elle est saine.
+Ce projet est une application d'intelligence artificielle capable de détecter si une cellule sanguine est infectée par le parasite de la malaria ou si elle est saine à partir d'images de frottis sanguins.
 
 ## 🔗 Démo en ligne
-👉 **Testez l'application ici :** [Lien vers votre Hugging Face Space ici](https://huggingface.co/spaces/Alajouili123/Detecteur-Malaria)
+👉 **Testez l'application en direct ici :** [Hugging Face Space - Detecteur Malaria](https://huggingface.co/spaces/Alajouili123/Detecteur-Malaria)
+
+## 📊 Dataset Officiel (NIH)
+L'IA a été développée en utilisant le dataset de référence du **NIH (National Institutes of Health)** :
+* **Volume** : ~27 500 images classées (Parasitized / Uninfected).
+* **Provenance** : Images couleur de 100 à 150 px issues de frottis sanguins réels.
+* **Source** : [Kaggle - Malaria Cell Images Dataset](https://www.kaggle.com/datasets/iarunava/cell-images-for-detecting-malaria).
+
+## 📈 Évaluation et Performances
+Le modèle a été validé sur un échantillon de test pour vérifier sa fiabilité médicale.
+
+### Matrice de Confusion
+Cette matrice montre la capacité de l'IA à distinguer les cellules saines des cellules infectées sans faire de "Faux Négatifs" (oublier un malade).
+
+![Matrice de Confusion](matrice_confusion.png)
+
+### Métriques de Performance
+L'IA atteint des scores élevés de précision et de rappel (Recall), essentiels pour un diagnostic médical.
+
+![Performances](performances.png)
 
 ## 🛠️ Technologies utilisées
 * **Python**
-* **PyTorch** (Création et entraînement du modèle CNN)
-* **Gradio** (Interface utilisateur)
-* **Hugging Face Spaces** (Hébergement)
+* **PyTorch** : Architecture CNN pour la vision par ordinateur.
+* **Gradio** : Interface web interactive.
+* **Hugging Face Spaces** : Hébergement permanent de la solution.
 
 ## 📂 Structure du projet
-* `app.py` : Le code de l'application web.
-* `entrainement_modele.ipynb` : Le Notebook Google Colab utilisé pour entraîner l'IA (95%+ de précision).
-* `requirements.txt` : Les dépendances nécessaires.
+* `app.py` : Code principal de l'interface Gradio.
+* `entrainement_modele.ipynb` : Notebook de conception et d'entraînement.
+* `requirements.txt` : Liste des bibliothèques nécessaires.
+* `ton_modele.pth` : Le fichier contenant le "cerveau" entraîné de l'IA.
 
-## 🧠 Le Modèle
-Le modèle est un Réseau de Neurones Convolutif (CNN) entraîné sur le dataset public du NIH contenant 27 500 images de cellules.
-
-## 🚀 Comment lancer localement
-1. Clonez le repo
-2. Installez les dépendances : `pip install -r requirements.txt`
-3. Lancez l'app : `python app.py`
+## 🚀 Installation locale
+1. Clonez le dépôt :
+   ```bash
+   git clone [https://github.com/alajouili/detecteur-malaria-ala.git](https://github.com/alajouili/detecteur-malaria-ala.git)
