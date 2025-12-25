@@ -4,7 +4,7 @@
 Ce projet est une application d'intelligence artificielle capable de détecter si une cellule sanguine est infectée par le parasite de la malaria ou si elle est saine.
 
 ## 🔗 Démo en ligne
-👉 **Testez l'application ici :** [[Lien vers votre Hugging Face Space ici](https://huggingface.co/spaces/Alajouili123/Detecteur-Malaria/tree/main)]
+👉 **Testez l'application ici :** [Lien vers votre Hugging Face Space ici](https://huggingface.co/spaces/Alajouili123/Detecteur-Malaria)
 
 ## 🛠️ Technologies utilisées
 * **Python**
