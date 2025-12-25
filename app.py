@@ -5,7 +5,7 @@ from torchvision import transforms
 from PIL import Image
 import os
 
-# --- 1. DÉFINITION DU MODÈLE ---
+# --- 1. DÉFINITION DU MODÈLE (Inchangé) ---
 class MalariaModel(nn.Module):
     def __init__(self):
         super().__init__()
@@ -28,7 +28,7 @@ class MalariaModel(nn.Module):
     def forward(self, xb):
         return self.network(xb)
 
-# --- 2. CHARGEMENT SÉCURISÉ ---
+# --- 2. CHARGEMENT SÉCURISÉ (Inchangé) ---
 model = MalariaModel()
 filename = "malaria_model_final.pth"
 
@@ -42,7 +42,7 @@ if os.path.exists(filename):
 else:
     print("⚠️ ATTENTION : Le fichier .pth est introuvable.")
 
-# --- 3. LOGIQUE DE PRÉDICTION ---
+# --- 3. LOGIQUE DE PRÉDICTION (Inchangé) ---
 transform = transforms.Compose([
     transforms.Resize((64, 64)), 
     transforms.ToTensor()
@@ -61,50 +61,64 @@ def predict(image):
         
     return {"Sain (Uninfected) 🟢": prob_sain, "Infecté (Parasitized) 🦠": prob_infecte}
 
-# --- 4. INTERFACE GRAPHIQUE ÉPURÉE ---
+# --- 4. INTERFACE GRAPHIQUE (NOUVELLES COULEURS INDIGO/VIOLET) ---
 
+# CSS mis à jour pour le style "Tech"
 custom_css = """
 .container {max-width: 900px; margin: auto; padding-top: 20px;}
-h1 {text-align: center; color: #2563eb; margin-bottom: 0;}
-h3 {text-align: center; color: #666; margin-top: 5px; font-style: italic;}
-.gr-button {background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%); border: none; color: white;}
+
+/* Titre en Indigo foncé */
+h1 {text-align: center; color: #312e81; font-weight: 800; font-size: 2.5rem; margin-bottom: 0;}
+
+/* Sous-titre en Violet clair */
+h3 {text-align: center; color: #6366f1; margin-top: 5px; font-style: italic;}
+
+/* Bouton Dégradé Indigo -> Violet */
+.gr-button {
+    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%) !important; 
+    border: none !important; 
+    color: white !important; 
+    font-weight: bold;
+}
 """
 
+# Thème Indigo et Violet
 theme = gr.themes.Soft(
-    primary_hue="teal",
-    secondary_hue="blue",
+    primary_hue="indigo",
+    secondary_hue="violet",
+    neutral_hue="slate",
 ).set(
-    button_primary_background_fill="*primary_500",
-    button_primary_background_fill_hover="*primary_600",
+    button_primary_background_fill="linear-gradient(90deg, #4F46E5, #7C3AED)",
+    button_primary_background_fill_hover="linear-gradient(90deg, #4338ca, #6d28d9)",
 )
 
 with gr.Blocks(theme=theme, css=custom_css, title="Malaria AI - Ala") as demo:
     
-    # --- EN-TÊTE SIMPLE ---
-    # Ton nom est ici, propre et visible
+    # --- EN-TÊTE ---
     gr.Markdown("""
-    # 🔬 Malaria AI Detection
-    ### Developed by Ala
+    # 🔬 MALARIA AI DETECTION
+    ### Designed & Developed by Ala
     """)
     
-    gr.HTML("<br>") # Un peu d'espace
+    gr.HTML("<br>")
 
     # --- ZONE PRINCIPALE ---
     with gr.Row():
-        # Colonne de Gauche : Entrée
+        # Colonne de Gauche
         with gr.Column(scale=1):
             input_image = gr.Image(
                 type="pil", 
                 label="Image Microscope", 
                 height=300
             )
-            analyze_btn = gr.Button("🔍 Analyser", variant="primary", size="lg")
+            # Le bouton aura maintenant le dégradé violet/indigo
+            analyze_btn = gr.Button("⚡ LANCER L'ANALYSE", variant="primary", size="lg")
 
-        # Colonne de Droite : Résultat
+        # Colonne de Droite
         with gr.Column(scale=1):
             output_label = gr.Label(
                 num_top_classes=2, 
-                label="Résultat"
+                label="Résultat IA"
             )
 
     # --- INTERACTIONS ---
